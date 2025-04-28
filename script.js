@@ -57,6 +57,13 @@ function downloadPDF() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
+    // Создаем копию элемента для PDF, чтобы скрыть кнопки
+    const elementCopy = element.cloneNode(true);
+    const buttons = elementCopy.querySelectorAll('.actions');
+    buttons.forEach(btn => btn.style.display = 'none');
+    
+    document.body.appendChild(elementCopy);
+    
     // Добавляем небольшую задержку для корректного рендеринга
     setTimeout(() => {
         html2pdf().from(elementCopy).set(opt).save();
