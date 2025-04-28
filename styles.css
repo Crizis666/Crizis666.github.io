@@ -210,7 +210,6 @@ body {
     }
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .resume-header {
         padding: 20px;
@@ -252,5 +251,22 @@ body {
     
     .section-title {
         font-size: 1.3rem;
+    }
+}
+
+@media print {
+    body, .resume-container, .resume-container * {
+        color: #000000 !important;
+        background-color: transparent !important;
+    }
+    
+    .resume-header {
+        background-color: #4285f4 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .actions {
+        display: none !important;
     }
 }

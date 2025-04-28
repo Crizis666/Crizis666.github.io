@@ -45,46 +45,48 @@ function addClickAnimation(event) {
 
 function downloadPDF() {
     const element = document.querySelector('.resume-container');
+
+    const elementCopy = element.cloneNode(true);
+    
+    const allElements = elementCopy.querySelectorAll('*');
+    allElements.forEach(el => {
+        el.style.color = '#000000';
+        el.style.backgroundColor = 'transparent';
+    });
+    
+    const buttons = elementCopy.querySelectorAll('.actions');
+    buttons.forEach(btn => btn.style.display = 'none');
+    
+    elementCopy.style.position = 'fixed';
+    elementCopy.style.left = '-9999px';
+    elementCopy.style.top = '0';
+    elementCopy.style.width = '800px';
+    elementCopy.style.margin = '0';
+    document.body.appendChild(elementCopy);
+    
     const opt = {
         margin: 10,
         filename: 'resume.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { 
+            scale: 2,
+            logging: true,
+            useCORS: true,
+            letterRendering: true,
+            backgroundColor: '#FFFFFF'
+        },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    const elementCopy = element.cloneNode(true);
-    const buttons = elementCopy.querySelectorAll('.actions');
-    buttons.forEach(btn => btn.style.display = 'none');
-    
-    document.body.appendChild(elementCopy);
-    
     setTimeout(() => {
-        html2pdf().from(elementCopy).set(opt).save();
-        setTimeout(() => {
-            document.body.removeChild(elementCopy);
-        }, 100);
-    }, 200);
-}
-
-function saveData() {
-    const resumeData = {};
-    const editableElements = document.querySelectorAll('[contenteditable="true"]');
-    
-    editableElements.forEach((element, index) => {
-        resumeData[`editable-${index}`] = element.innerHTML;
-    });
-    
-    localStorage.setItem('resumeData', JSON.stringify(resumeData));
-    
-    const saveBtn = document.getElementById('saveBtn');
-    saveBtn.textContent = 'Сохранено!';
-    saveBtn.style.backgroundColor = '#0f9d58';
-    
-    setTimeout(() => {
-        saveBtn.textContent = 'Сохранить изменения';
-        saveBtn.style.backgroundColor = '#4285f4';
-    }, 2000);
+        html2pdf()
+            .set(opt)
+            .from(elementCopy)
+            .save()
+            .then(() => {
+                document.body.removeChild(elementCopy);
+            });
+    }, 500);
 }
 
 function loadSavedData() {
