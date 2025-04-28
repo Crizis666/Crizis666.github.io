@@ -50,27 +50,83 @@ function addClickAnimation(event) {
 
 function downloadPDF() {
     const element = document.querySelector('.resume-container');
+    
+    // Создаем копию элемента
+    const elementCopy = element.cloneNode(true);
+    
+    // Удаляем кнопки действий
+    const actions = elementCopy.querySelector('.actions');
+    if (actions) actions.remove();
+    
+    // Применяем стили для PDF
+    elementCopy.style.width = '800px';
+    elementCopy.style.margin = '0 auto';
+    elementCopy.style.padding = '0';
+    elementCopy.style.boxShadow = 'none';
+    
+    // Принудительно устанавливаем черный цвет для всего текста
+    const allTextElements = elementCopy.querySelectorAll('*');
+    allTextElements.forEach(el => {
+        el.style.color = '#000000'; // Черный цвет
+        el.style.backgroundColor = 'transparent';
+    });
+    
+    // Сохраняем синий цвет только для заголовков
+    const headers = elementCopy.querySelectorAll('h1, h2, h3, .section-title');
+    headers.forEach(header => {
+        header.style.color = '#4285f4'; // Синий цвет для заголовков
+    });
+    
+    // Стили для периодов работы (серый курсив)
+    const periods = elementCopy.querySelectorAll('.job-period, .education-period');
+    periods.forEach(period => {
+        period.style.color = '#777777';
+        period.style.fontStyle = 'italic';
+    });
+    
+    // Временно добавляем копию в DOM
+    elementCopy.style.position = 'fixed';
+    elementCopy.style.left = '-9999px';
+    elementCopy.style.top = '0';
+    document.body.appendChild(elementCopy);
+    
+    // Настройки для PDF
     const opt = {
         margin: 10,
         filename: 'resume.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        image: { 
+            type: 'jpeg', 
+            quality: 1 
+        },
+        html2canvas: { 
+            scale: 2,
+            logging: true,
+            useCORS: true,
+            letterRendering: true,
+            backgroundColor: '#FFFFFF',
+            ignoreElements: (el) => el.classList.contains('actions')
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait' 
+        }
     };
     
-    // Создаем копию элемента для PDF, чтобы скрыть кнопки
-    const elementCopy = element.cloneNode(true);
-    const buttons = elementCopy.querySelectorAll('.actions');
-    buttons.forEach(btn => btn.style.display = 'none');
-    
-    document.body.appendChild(elementCopy);
-    
-    // Добавляем небольшую задержку для корректного рендеринга
+    // Генерация PDF с задержкой
     setTimeout(() => {
-        html2pdf().from(elementCopy).set(opt).save();
-        setTimeout(() => {
-            document.body.removeChild(elementCopy);
-        }, 100);
-    }, 200);
+        html2pdf()
+            .set(opt)
+            .from(elementCopy)
+            .save()
+            .then(() => {
+                document.body.removeChild(elementCopy);
+            })
+            .catch(err => {
+                console.error('Ошибка генерации PDF:', err);
+                document.body.removeChild(elementCopy);
+            });
+    }, 1000);
 }
 
 function saveData() {
