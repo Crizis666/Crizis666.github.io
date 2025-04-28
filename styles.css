@@ -45,3 +45,44 @@
         display: none !important;
     }
 }
+
+/* Добавьте в конец styles.css */
+
+/* Стили для печати/PDF */
+@media print {
+    body {
+        background: white !important;
+    }
+    
+    .resume-container {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .resume-header {
+        background-color: #4285f4 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: white !important;
+        padding: 20px !important;
+    }
+    
+    .section-title {
+        color: #4285f4 !important;
+        border-bottom: 2px solid #f1f1f1 !important;
+    }
+    
+    .job-item h3 {
+        color: #4285f4 !important;
+    }
+    
+    .job-period {
+        color: #777 !important;
+        font-style: italic !important;
+    }
+    
+    .actions {
+        display: none !important;
+    }
+}

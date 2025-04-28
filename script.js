@@ -53,23 +53,49 @@ function downloadPDF() {
             logging: true,
             useCORS: true,
             letterRendering: true,
-            backgroundColor: '#FFFFFF'
+            backgroundColor: '#FFFFFF',
+            ignoreElements: (element) => {
+                // Игнорируем только кнопки действий
+                return element.classList.contains('actions');
+            }
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
-    
+
     // Создаем копию с исправленными стилями
     const elementCopy = element.cloneNode(true);
-    elementCopy.classList.add('pdf-export');
     
-    // Убираем кнопки
-    const buttons = elementCopy.querySelector('.actions');
-    if (buttons) buttons.remove();
+    // Применяем стили для PDF
+    elementCopy.querySelectorAll('*').forEach(el => {
+        el.style.color = '#000000';
+        el.style.backgroundColor = 'transparent';
+    });
     
+    // Устанавливаем специфичные стили для заголовков
+    elementCopy.querySelectorAll('.section-title').forEach(el => {
+        el.style.color = '#4285f4';
+        el.style.borderBottom = '2px solid #f1f1f1';
+    });
+    
+    // Устанавливаем стили для опыта работы
+    elementCopy.querySelectorAll('.job-item h3').forEach(el => {
+        el.style.color = '#4285f4';
+        el.style.marginBottom = '5px';
+    });
+    
+    elementCopy.querySelectorAll('.job-period').forEach(el => {
+        el.style.color = '#777';
+        el.style.fontStyle = 'italic';
+        el.style.marginBottom = '10px';
+    });
+
     // Временно добавляем в DOM
+    elementCopy.style.position = 'fixed';
+    elementCopy.style.left = '-9999px';
+    elementCopy.style.width = '800px';
     document.body.appendChild(elementCopy);
-    
-    // Генерация PDF с задержкой
+
+    // Генерация PDF
     setTimeout(() => {
         html2pdf()
             .set(opt)
