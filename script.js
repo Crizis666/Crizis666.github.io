@@ -48,45 +48,22 @@ function addClickAnimation(event) {
     }, 400);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const generateBtn = document.getElementById("generateBtn");
-    generateBtn.addEventListener("click", generatePDF);
-  });
-  
-  function downloadPDF() {
-    const element = document.getElementById("app");
-    const root = document.documentElement;
+function downloadPDF() {
+    const element = document.querySelector('.resume-container');
+    const opt = {
+        margin: 10,
+        filename: 'resume.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
     
-    // Сохраняем исходный цвет
-    const originalColor = getComputedStyle(root).color;
-
-    // Устанавливаем чёрный цвет текста
-    root.style.color = "black";
-
-    // Генерируем PDF
-    html2pdf()
-        .set({
-            margin: 10,
-            filename: "resume.pdf",
-            html2canvas: { 
-                scale: 2,
-                onclone: (clonedDoc) => {
-                    // Дополнительно меняем цвет в клоне документа
-                    clonedDoc.documentElement.style.color = "black";
-                }
-            },
-            jsPDF: { format: "a4", orientation: "portrait" }
-        })
-        .from(element)
-        .save()
-        .then(() => {
-            // Восстанавливаем исходный цвет
-            root.style.color = originalColor;
-        })
-        .catch((err) => {
-            console.error("Ошибка:", err);
-            root.style.color = originalColor;
-        });
+    // Добавляем небольшую задержку для корректного рендеринга
+    setTimeout(() => {
+        html2pdf().from(elementCopy).set(opt).save();
+        setTimeout(() => {
+            document.body.removeChild(elementCopy);
+        }, 100);
+    }, 200);
 }
 
 function saveData() {
