@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
-    
     document.getElementById('saveBtn').addEventListener('click', saveData);
 });
 
@@ -45,25 +44,6 @@ function addClickAnimation(event) {
 
 function downloadPDF() {
     const element = document.querySelector('.resume-container');
-
-    const elementCopy = element.cloneNode(true);
-    
-    const allElements = elementCopy.querySelectorAll('*');
-    allElements.forEach(el => {
-        el.style.color = '#000000';
-        el.style.backgroundColor = 'transparent';
-    });
-    
-    const buttons = elementCopy.querySelectorAll('.actions');
-    buttons.forEach(btn => btn.style.display = 'none');
-    
-    elementCopy.style.position = 'fixed';
-    elementCopy.style.left = '-9999px';
-    elementCopy.style.top = '0';
-    elementCopy.style.width = '800px';
-    elementCopy.style.margin = '0';
-    document.body.appendChild(elementCopy);
-    
     const opt = {
         margin: 10,
         filename: 'resume.pdf',
@@ -78,6 +58,18 @@ function downloadPDF() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
+    // Создаем копию с исправленными стилями
+    const elementCopy = element.cloneNode(true);
+    elementCopy.classList.add('pdf-export');
+    
+    // Убираем кнопки
+    const buttons = elementCopy.querySelector('.actions');
+    if (buttons) buttons.remove();
+    
+    // Временно добавляем в DOM
+    document.body.appendChild(elementCopy);
+    
+    // Генерация PDF с задержкой
     setTimeout(() => {
         html2pdf()
             .set(opt)
@@ -87,6 +79,26 @@ function downloadPDF() {
                 document.body.removeChild(elementCopy);
             });
     }, 500);
+}
+
+function saveData() {
+    const resumeData = {};
+    const editableElements = document.querySelectorAll('[contenteditable="true"]');
+    
+    editableElements.forEach((element, index) => {
+        resumeData[`editable-${index}`] = element.innerHTML;
+    });
+    
+    localStorage.setItem('resumeData', JSON.stringify(resumeData));
+    
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.textContent = 'Сохранено!';
+    saveBtn.style.backgroundColor = '#0f9d58';
+    
+    setTimeout(() => {
+        saveBtn.textContent = 'Сохранить изменения';
+        saveBtn.style.backgroundColor = '#4285f4';
+    }, 2000);
 }
 
 function loadSavedData() {
