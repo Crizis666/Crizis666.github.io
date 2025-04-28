@@ -48,30 +48,45 @@ function addClickAnimation(event) {
   }, 400);
 }
 
-function downloadPDF() {
-  const element = document.querySelector('.resume-container');
-  const opt = {
-      margin: 10,
-      filename: 'resume.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
+document.addEventListener("DOMContentLoaded", () => {
+  const generateBtn = document.getElementById("generateBtn");
+  generateBtn.addEventListener("click", generatePDF);
+});
+
+function generatePDF() {
+  const element = document.getElementById("app");
+  const root = document.documentElement;
   
-  // Создаем копию элемента для PDF, чтобы скрыть кнопки
-  const elementCopy = element.cloneNode(true);
-  const buttons = elementCopy.querySelectorAll('.actions');
-  buttons.forEach(btn => btn.style.display = 'none');
-  
-  document.body.appendChild(elementCopy);
-  
-  // Добавляем небольшую задержку для корректного рендеринга
-  setTimeout(() => {
-      html2pdf().from(elementCopy).set(opt).save();
-      setTimeout(() => {
-          document.body.removeChild(elementCopy);
-      }, 100);
-  }, 200);
+  // Сохраняем исходный цвет
+  const originalColor = getComputedStyle(root).color;
+
+  // Устанавливаем чёрный цвет текста
+  root.style.color = "black";
+
+  // Генерируем PDF
+  html2pdf()
+      .set({
+          margin: 10,
+          filename: "resume.pdf",
+          html2canvas: { 
+              scale: 2,
+              onclone: (clonedDoc) => {
+                  // Дополнительно меняем цвет в клоне документа
+                  clonedDoc.documentElement.style.color = "black";
+              }
+          },
+          jsPDF: { format: "a4", orientation: "portrait" }
+      })
+      .from(element)
+      .save()
+      .then(() => {
+          // Восстанавливаем исходный цвет
+          root.style.color = originalColor;
+      })
+      .catch((err) => {
+          console.error("Ошибка:", err);
+          root.style.color = originalColor;
+      });
 }
 
 function saveData() {
