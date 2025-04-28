@@ -254,20 +254,3 @@ body {
       font-size: 1.3rem;
   }
 }
-
-.pdf-mode * {
-  color: #000000 !important;
-}
-
-.pdf-mode h1,
-.pdf-mode h2,
-.pdf-mode h3,
-.pdf-mode .section-title {
-  color: #4285f4 !important;
-}
-
-.pdf-mode .job-period,
-.pdf-mode .education-period {
-  color: #777777 !important;
-  font-style: italic !important;
-}
