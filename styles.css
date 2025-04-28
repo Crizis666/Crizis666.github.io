@@ -254,29 +254,3 @@ body {
       font-size: 1.3rem;
   }
 }
-
-.pdf-export-mode {
-  position: fixed;
-  left: -9999px;
-  top: 0;
-  width: 800px;
-  margin: 0 auto;
-  background: white !important;
-}
-
-.pdf-export-mode * {
-  color: black !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  text-shadow: none !important;
-}
-
-@media print {
-  body {
-      background: white !important;
-  }
-  * {
-      -webkit-print-color-adjust: exact !important;
-      print-color-adjust: exact !important;
-  }
-}
