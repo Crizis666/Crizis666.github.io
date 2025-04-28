@@ -55,54 +55,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function downloadPDF() {
     const element = document.querySelector('.resume-container');
-    
-    // Создаем копию с принудительными стилями для PDF
     const elementCopy = element.cloneNode(true);
     
     // Удаляем кнопки
     elementCopy.querySelector('.actions')?.remove();
     
-    // Применяем абсолютно черный цвет ко ВСЕМУ тексту
+    // Применяем черный цвет с !important ко всем элементам
     const allElements = elementCopy.querySelectorAll('*');
     allElements.forEach(el => {
-        // Сохраняем только подчеркивание для ссылок
-        if (el.tagName !== 'A') {
-            el.style.color = '#000000'; // Черный цвет
-            el.style.backgroundColor = 'transparent';
-        }
+        el.style.setProperty('color', '#000000', 'important');
+        el.style.setProperty('background-color', 'transparent', 'important');
     });
     
-    // Явно устанавливаем стили для заголовков
+    // Особые стили для заголовков (если нужно сохранить их цвет)
     elementCopy.querySelectorAll('h1, h2, h3, .section-title').forEach(el => {
-        el.style.color = '#000000'; // Черный цвет для заголовков тоже
+        el.style.setProperty('color', '#000000', 'important'); // Или другой цвет для заголовков
     });
     
-    // Временно добавляем в DOM
+    // Временное добавление в DOM
     elementCopy.style.position = 'fixed';
     elementCopy.style.left = '-9999px';
-    elementCopy.style.width = '800px';
     document.body.appendChild(elementCopy);
     
-    // Настройки для PDF с улучшенной обработкой цветов
+    // Настройки PDF
     const opt = {
-        margin: 10,
-        filename: 'resume.pdf',
         html2canvas: {
             scale: 2,
-            logging: true,
-            useCORS: true,
-            letterRendering: true,
-            backgroundColor: '#FFFFFF', // Белый фон
+            backgroundColor: '#FFFFFF',
             ignoreElements: (el) => el.classList.contains('actions')
         },
-        jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait'
-        }
+        jsPDF: { format: 'a4' }
     };
     
-    // Генерация с увеличенной задержкой
     setTimeout(() => {
         html2pdf()
             .set(opt)
@@ -111,7 +95,7 @@ function downloadPDF() {
             .finally(() => {
                 document.body.removeChild(elementCopy);
             });
-    }, 1500); // Увеличенная задержка
+    }, 1500);
 }
 
 function saveData() {
