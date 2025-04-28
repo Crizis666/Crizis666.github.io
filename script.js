@@ -53,40 +53,65 @@ document.addEventListener("DOMContentLoaded", () => {
   generateBtn.addEventListener("click", generatePDF);
 });
 
-function generatePDF() {
-  const element = document.getElementById("app");
-  const root = document.documentElement;
-  
-  // Сохраняем исходный цвет
-  const originalColor = getComputedStyle(root).color;
-
-  // Устанавливаем чёрный цвет текста
-  root.style.color = "black";
-
-  // Генерируем PDF
-  html2pdf()
-      .set({
-          margin: 10,
-          filename: "resume.pdf",
-          html2canvas: { 
-              scale: 2,
-              onclone: (clonedDoc) => {
-                  // Дополнительно меняем цвет в клоне документа
-                  clonedDoc.documentElement.style.color = "black";
-              }
-          },
-          jsPDF: { format: "a4", orientation: "portrait" }
-      })
-      .from(element)
-      .save()
-      .then(() => {
-          // Восстанавливаем исходный цвет
-          root.style.color = originalColor;
-      })
-      .catch((err) => {
-          console.error("Ошибка:", err);
-          root.style.color = originalColor;
-      });
+function downloadPDF() {
+    const element = document.querySelector('.resume-container');
+    
+    // Создаем копию с принудительными стилями для PDF
+    const elementCopy = element.cloneNode(true);
+    
+    // Удаляем кнопки
+    elementCopy.querySelector('.actions')?.remove();
+    
+    // Применяем абсолютно черный цвет ко ВСЕМУ тексту
+    const allElements = elementCopy.querySelectorAll('*');
+    allElements.forEach(el => {
+        // Сохраняем только подчеркивание для ссылок
+        if (el.tagName !== 'A') {
+            el.style.color = '#000000'; // Черный цвет
+            el.style.backgroundColor = 'transparent';
+        }
+    });
+    
+    // Явно устанавливаем стили для заголовков
+    elementCopy.querySelectorAll('h1, h2, h3, .section-title').forEach(el => {
+        el.style.color = '#000000'; // Черный цвет для заголовков тоже
+    });
+    
+    // Временно добавляем в DOM
+    elementCopy.style.position = 'fixed';
+    elementCopy.style.left = '-9999px';
+    elementCopy.style.width = '800px';
+    document.body.appendChild(elementCopy);
+    
+    // Настройки для PDF с улучшенной обработкой цветов
+    const opt = {
+        margin: 10,
+        filename: 'resume.pdf',
+        html2canvas: {
+            scale: 2,
+            logging: true,
+            useCORS: true,
+            letterRendering: true,
+            backgroundColor: '#FFFFFF', // Белый фон
+            ignoreElements: (el) => el.classList.contains('actions')
+        },
+        jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+        }
+    };
+    
+    // Генерация с увеличенной задержкой
+    setTimeout(() => {
+        html2pdf()
+            .set(opt)
+            .from(elementCopy)
+            .save()
+            .finally(() => {
+                document.body.removeChild(elementCopy);
+            });
+    }, 1500); // Увеличенная задержка
 }
 
 function saveData() {
