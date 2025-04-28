@@ -1,23 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Загрузка сохраненных данных
     loadSavedData();
     
-    // Добавление ripple эффекта к кнопкам
     const buttons = document.querySelectorAll('.btn');
     buttons.forEach(button => {
         button.addEventListener('click', createRipple);
     });
     
-    // Добавление анимации клика к редактируемым элементам
     const editableElements = document.querySelectorAll('[contenteditable="true"]');
     editableElements.forEach(element => {
         element.addEventListener('click', addClickAnimation);
     });
     
-    // Обработчик кнопки скачивания
     document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
     
-    // Обработчик кнопки сохранения
     document.getElementById('saveBtn').addEventListener('click', saveData);
 });
 
@@ -58,14 +53,12 @@ function downloadPDF() {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     
-    // Создаем копию элемента для PDF, чтобы скрыть кнопки
     const elementCopy = element.cloneNode(true);
     const buttons = elementCopy.querySelectorAll('.actions');
     buttons.forEach(btn => btn.style.display = 'none');
     
     document.body.appendChild(elementCopy);
     
-    // Добавляем небольшую задержку для корректного рендеринга
     setTimeout(() => {
         html2pdf().from(elementCopy).set(opt).save();
         setTimeout(() => {
@@ -84,7 +77,6 @@ function saveData() {
     
     localStorage.setItem('resumeData', JSON.stringify(resumeData));
     
-    // Анимация подтверждения сохранения
     const saveBtn = document.getElementById('saveBtn');
     saveBtn.textContent = 'Сохранено!';
     saveBtn.style.backgroundColor = '#0f9d58';
