@@ -255,19 +255,28 @@ body {
   }
 }
 
+.pdf-export-mode {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 800px;
+  margin: 0 auto;
+  background: white !important;
+}
+
+.pdf-export-mode * {
+  color: black !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
 @media print {
-  body, .resume-container, .resume-container * {
-      color: #000000 !important;
+  body {
+      background: white !important;
+  }
+  * {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
-      background: transparent !important;
-  }
-  
-  .resume-header {
-      background-color: #ffffff !important;
-  }
-  
-  h1, h2, h3, .section-title {
-      color: #000000 !important;
   }
 }

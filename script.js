@@ -53,49 +53,85 @@ document.addEventListener("DOMContentLoaded", () => {
   generateBtn.addEventListener("click", generatePDF);
 });
 
-function downloadPDF() {
+document.fonts.ready.then(() => {
+    downloadPDF();
+});
+
+async function downloadPDF() {
     const element = document.querySelector('.resume-container');
+    
+    // Создаем чистую копию элемента
     const elementCopy = element.cloneNode(true);
     
-    // Удаляем кнопки
+    // Удаляем ненужные элементы
     elementCopy.querySelector('.actions')?.remove();
     
-    // Применяем черный цвет с !important ко всем элементам
+    // Применяем абсолютные стили для PDF
+    elementCopy.style.width = '800px';
+    elementCopy.style.margin = '0 auto';
+    elementCopy.style.padding = '20px';
+    elementCopy.style.boxShadow = 'none';
+    elementCopy.style.background = '#ffffff';
+    
+    // Принудительно устанавливаем стили для всех элементов
     const allElements = elementCopy.querySelectorAll('*');
     allElements.forEach(el => {
-        el.style.setProperty('color', '#000000', 'important');
-        el.style.setProperty('background-color', 'transparent', 'important');
+        el.style.color = '#000000';
+        el.style.backgroundColor = 'transparent';
+        el.style.boxShadow = 'none';
+        el.style.textShadow = 'none';
     });
     
-    // Особые стили для заголовков (если нужно сохранить их цвет)
-    elementCopy.querySelectorAll('h1, h2, h3, .section-title').forEach(el => {
-        el.style.setProperty('color', '#000000', 'important'); // Или другой цвет для заголовков
+    // Явно задаем стили для заголовков
+    elementCopy.querySelectorAll('h1, h2, h3').forEach(el => {
+        el.style.color = '#000000';
+        el.style.fontWeight = 'bold';
     });
     
-    // Временное добавление в DOM
+    // Временно добавляем в DOM
     elementCopy.style.position = 'fixed';
     elementCopy.style.left = '-9999px';
+    elementCopy.style.top = '0';
+    elementCopy.style.zIndex = '9999';
     document.body.appendChild(elementCopy);
     
-    // Настройки PDF
-    const opt = {
-        html2canvas: {
-            scale: 2,
-            backgroundColor: '#FFFFFF',
-            ignoreElements: (el) => el.classList.contains('actions')
-        },
-        jsPDF: { format: 'a4' }
-    };
-    
-    setTimeout(() => {
-        html2pdf()
-            .set(opt)
-            .from(elementCopy)
-            .save()
-            .finally(() => {
-                document.body.removeChild(elementCopy);
-            });
-    }, 1500);
+    try {
+        // Новые оптимальные настройки
+        const opt = {
+            margin: 10,
+            filename: 'resume.pdf',
+            image: {
+                type: 'jpeg',
+                quality: 1
+            },
+            html2canvas: {
+                scale: 2,
+                logging: true,
+                useCORS: true,
+                allowTaint: true,
+                letterRendering: true,
+                backgroundColor: '#ffffff',
+                ignoreElements: (el) => el.classList.contains('actions')
+            },
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: 'portrait'
+            }
+        };
+        
+        // Добавляем задержку для применения стилей
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Генерация PDF
+        await html2pdf().set(opt).from(elementCopy).save();
+        
+    } catch (error) {
+        console.error('Ошибка генерации PDF:', error);
+    } finally {
+        // Удаляем временный элемент
+        document.body.removeChild(elementCopy);
+    }
 }
 
 function saveData() {
