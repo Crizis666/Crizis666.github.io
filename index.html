@@ -1,35 +1,70 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Моё Резюме</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Резюме Жариков Илья</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="resume-container">
+        <header class="resume-header">
+            <h1 contenteditable="true">Жариков Илья</h1>
+            <div class="contact-info">
+                <p contenteditable="true"><strong>Email:</strong> liazh06@gmail.com</p>
+                <p contenteditable="true"><strong>Телефон:</strong> +7 (913) 944-7914</p>
+                <p contenteditable="true"><strong>Город:</strong> Новосибирск</p>
+            </div>
+        </header>
 
-  <div class="resume" id="resume">
-    <h1 contenteditable="true" class="editable" data-key="name">Имя Фамилия</h1>
-    <h2 contenteditable="true" class="editable" data-key="position">Должность</h2>
-    <section contenteditable="true" class="editable" data-key="about">
-      Краткое описание о себе...
-    </section>
-    <section contenteditable="true" class="editable" data-key="experience">
-      Опыт работы: ваша последняя работа...
-    </section>
-    <section contenteditable="true" class="editable" data-key="skills">
-      Навыки: перечислите навыки через запятую...
-    </section>
-    <section contenteditable="true" class="editable" data-key="contacts">
-      Контакты: номер телефона, email...
-    </section>
-  </div>
+        <main class="resume-content">
+            <section class="resume-section">
+                <h2 contenteditable="true" class="section-title">Опыт работы</h2>
+                <div class="section-content">
+                    <div class="job-item" contenteditable="true">
+                        <h3>Frontend разработчик</h3>
+                        <p class="job-period">Январь 2020 - настоящее время</p>
+                        <p class="job-description">Разработка пользовательских интерфейсов с использованием HTML, CSS и JavaScript. Оптимизация производительности веб-приложений.</p>
+                    </div>
+                    <div class="job-item" contenteditable="true">
+                        <h3>Веб-дизайнер</h3>
+                        <p class="job-period">Март 2018 - Декабрь 2019</p>
+                        <p class="job-description">Создание макетов и прототипов для веб-сайтов.</p>
+                    </div>
+                </div>
+            </section>
 
-  <button id="download" class="ripple">Скачать PDF</button>
+            <section class="resume-section">
+                <h2 contenteditable="true" class="section-title">Образование</h2>
+                <div class="section-content">
+                    <div class="education-item" contenteditable="true">
+                        <h3>Сибирский государственный университет телекоммуникаций и информатики</h3>
+                        <p class="education-period">2014 - 2018</p>
+                        <p class="education-description">Направление: Программное обеспечение средств мобильной связи</p>
+                    </div>
+                </div>
+            </section>
 
-  <!-- Локально подключаем библиотеку html2pdf -->
-  <script src="html2pdf.bundle.min.js"></script>
-  <script src="script.js"></script>
+            <section class="resume-section">
+                <h2 contenteditable="true" class="section-title">Навыки</h2>
+                <div class="section-content skills-content" contenteditable="true">
+                    <ul>
+                        <li>HTML5, CSS3, JavaScript</li>
+                        <li>Адаптивный дизайн</li>
+                        <li>Работа с Git</li>
+                        <li>Основы UI/UX</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
 
+        <div class="actions">
+            <button id="downloadBtn" class="btn">Скачать PDF</button>
+            <button id="saveBtn" class="btn">Сохранить изменения</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
