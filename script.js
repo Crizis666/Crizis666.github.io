@@ -48,16 +48,30 @@ function addClickAnimation(event) {
   }, 400);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const generateBtn = document.getElementById("generateBtn");
-  generateBtn.addEventListener("click", generatePDF);
-});
-
-function generatePDF() {
-  const element = document.getElementById("app");
-  html2pdf()
-      .from(element)
-      .save("test.pdf");
+function downloadPDF() {
+  const element = document.querySelector('.resume-container');
+  const opt = {
+      margin: 10,
+      filename: 'resume.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+  
+  // Создаем копию элемента для PDF, чтобы скрыть кнопки
+  const elementCopy = element.cloneNode(true);
+  const buttons = elementCopy.querySelectorAll('.actions');
+  buttons.forEach(btn => btn.style.display = 'none');
+  
+  document.body.appendChild(elementCopy);
+  
+  // Добавляем небольшую задержку для корректного рендеринга
+  setTimeout(() => {
+      html2pdf().from(elementCopy).set(opt).save();
+      setTimeout(() => {
+          document.body.removeChild(elementCopy);
+      }, 100);
+  }, 200);
 }
 
 function saveData() {
