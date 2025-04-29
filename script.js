@@ -54,39 +54,30 @@ function downloadPDF() {
         margin: 10,
         filename: 'resume.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#fff' },
+        html2canvas: { scale: 3, useCORS: true, backgroundColor: '#fff', logging: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     const elementCopy = element.cloneNode(true);
 
-    elementCopy.classList.add('pdf-rendering');
-
     const buttons = elementCopy.querySelectorAll('.actions');
     buttons.forEach(btn => btn.style.display = 'none');
 
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .resume-container * {
-            color: #000 !important; /* Черный цвет для всего текста */
+    function setStylesRecursively(node) {
+        if (node.nodeType === 1) {
+            node.style.color = '#000';
+            node.style.backgroundColor = 'transparent';
+            if (node.classList.contains('resume-header')) {
+                node.style.backgroundColor = '#fff';
+            }
+            if (node.classList.contains('section-title')) {
+                node.style.borderBottom = '2px solid #000';
+            }
         }
-        .resume-header {
-            background-color: #fff !important; /* Белый фон для заголовка */
-            color: #000 !important; /* Черный текст в заголовке */
-        }
-        .section-title {
-            color: #000 !important;
-            border-bottom: 2px solid #000 !important;
-        }
-        .job-item, .education-item, .skills-content, .contact-info p,
-        .job-description, .education-description, .skills-content li {
-            color: #000 !important;
-        }
-        .skills-content li::before {
-            color: #000 !important;
-        }
-    `;
-    elementCopy.appendChild(style);
+        node.childNodes.forEach(child => setStylesRecursively(child));
+    }
+
+    setStylesRecursively(elementCopy);
 
     document.body.appendChild(elementCopy);
 
