@@ -70,9 +70,17 @@
             background-color: #f9f9f9;
         }
 
+        /* Стиль для редактируемых элементов вне header */
         .editable[contenteditable="true"] {
             border-color: #4682b4;
             background-color: #e6f3fa;
+        }
+
+        /* Стиль для редактируемых элементов в header */
+        .header .editable[contenteditable="true"] {
+            border-color: #4682b4;
+            background-color: #fff;
+            color: #000;
         }
 
         .animation-update {
@@ -231,7 +239,7 @@
 
                 setTimeout(() => {
                     ripple.remove();
-                }, 200);
+                }, 600);
             });
         });
 
