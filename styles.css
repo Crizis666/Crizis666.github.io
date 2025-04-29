@@ -254,3 +254,64 @@ body {
       font-size: 1.3rem;
   }
 }
+
+@media print {
+  .resume-container,
+  .resume-header,
+  .resume-content,
+  .section-title,
+  .job-item,
+  .education-item,
+  .skills-content,
+  .contact-info p,
+  .job-description,
+  .education-description,
+  .skills-content li {
+      color: #000 !important;
+  }
+
+  .resume-header {
+      background-color: #fff !important;
+      color: #000 !important;
+  }
+
+  .section-title {
+      border-bottom: 2px solid #000 !important;
+  }
+
+  .skills-content li::before {
+      color: #000 !important;
+  }
+
+  .btn, .actions {
+      display: none !important;
+  }
+}
+
+.pdf-rendering {
+  color: #000 !important;
+}
+
+.pdf-rendering .resume-header {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+.pdf-rendering .section-title,
+.pdf-rendering .job-item,
+.pdf-rendering .education-item,
+.pdf-rendering .skills-content,
+.pdf-rendering .contact-info p,
+.pdf-rendering .job-description,
+.pdf-rendering .education-description,
+.pdf-rendering .skills-content li {
+  color: #000 !important;
+}
+
+.pdf-rendering .section-title {
+  border-bottom: 2px solid #000 !important;
+}
+
+.pdf-rendering .skills-content li::before {
+  color: #000 !important;
+}
