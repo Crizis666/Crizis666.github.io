@@ -81,6 +81,10 @@ function downloadPDF() {
 
     setStylesRecursively(elementCopy);
 
+    // Скрываем копию элемента, чтобы она не отображалась на странице
+    elementCopy.style.position = 'absolute';
+    elementCopy.style.left = '-9999px';
+
     // Добавляем копию в DOM для рендеринга
     document.body.appendChild(elementCopy);
 
@@ -120,6 +124,7 @@ function downloadPDF() {
             const link = document.createElement('a');
             link.href = url;
             link.download = 'resume.pdf';
+            link.style.display = 'none'; // Убедимся, что ссылка не видима
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -127,6 +132,14 @@ function downloadPDF() {
 
             // Удаляем временную копию элемента
             document.body.removeChild(elementCopy);
+
+            // Проверяем, нет ли элементов, которые могут отображать PDF
+            const existingPreviews = document.querySelectorAll('iframe, embed, object');
+            existingPreviews.forEach(preview => {
+                if (preview.src && preview.src.includes('resume.pdf')) {
+                    preview.remove();
+                }
+            });
         }).catch(error => {
             console.error('Ошибка при рендеринге PDF:', error);
             alert('Произошла ошибка при создании PDF. Пожалуйста, попробуйте снова.');
