@@ -84,68 +84,69 @@ function downloadPDF() {
     // Скрываем копию элемента, чтобы она не отображалась на странице
     elementCopy.style.position = 'absolute';
     elementCopy.style.left = '-9999px';
+    elementCopy.style.visibility = 'hidden';
 
     // Добавляем копию в DOM для рендеринга
     document.body.appendChild(elementCopy);
 
     // Рендерим содержимое как изображение с помощью html2canvas
-    setTimeout(() => {
-        html2canvas(elementCopy, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(canvas => {
-            const imgData = canvas.toDataURL('image/jpeg', 0.98);
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
+    html2canvas(elementCopy, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(canvas => {
+        // Убедимся, что canvas не добавляется в DOM
+        const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+        });
 
-            const imgWidth = 190; // Ширина изображения в PDF
-            const pageHeight = 297; // Высота страницы A4
-            const margin = 10;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
+        const imgWidth = 190; // Ширина изображения в PDF
+        const pageHeight = 297; // Высота страницы A4
+        const margin = 10;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
 
-            // Добавляем изображение на первую страницу
+        // Добавляем изображение на первую страницу
+        pdf.addImage(imgData, 'JPEG', margin, position + margin, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        // Добавляем дополнительные страницы, если изображение слишком длинное
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
             pdf.addImage(imgData, 'JPEG', margin, position + margin, imgWidth, imgHeight);
             heightLeft -= pageHeight;
+        }
 
-            // Добавляем дополнительные страницы, если изображение слишком длинное
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'JPEG', margin, position + margin, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
+        // Сохраняем PDF как Blob и инициируем скачивание
+        const pdfBlob = pdf.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'resume.pdf';
+        link.style.display = 'none'; // Убедимся, что ссылка не видима
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        // Удаляем временную копию элемента
+        document.body.removeChild(elementCopy);
+
+        // Проверяем, нет ли элементов, которые могут отображать PDF или изображение
+        const existingPreviews = document.querySelectorAll('iframe, embed, object, img:not([src*="cdn-cgi"])');
+        existingPreviews.forEach(preview => {
+            if (preview.src && (preview.src.includes('resume.pdf') || preview.src.includes('data:image'))) {
+                console.log('Удаляем нежелательный элемент:', preview);
+                preview.remove();
             }
-
-            // Сохраняем PDF как Blob и инициируем скачивание
-            const pdfBlob = pdf.output('blob');
-            const url = URL.createObjectURL(pdfBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'resume.pdf';
-            link.style.display = 'none'; // Убедимся, что ссылка не видима
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-
-            // Удаляем временную копию элемента
-            document.body.removeChild(elementCopy);
-
-            // Проверяем, нет ли элементов, которые могут отображать PDF
-            const existingPreviews = document.querySelectorAll('iframe, embed, object');
-            existingPreviews.forEach(preview => {
-                if (preview.src && preview.src.includes('resume.pdf')) {
-                    preview.remove();
-                }
-            });
-        }).catch(error => {
-            console.error('Ошибка при рендеринге PDF:', error);
-            alert('Произошла ошибка при создании PDF. Пожалуйста, попробуйте снова.');
-            document.body.removeChild(elementCopy);
         });
-    }, 200);
+    }).catch(error => {
+        console.error('Ошибка при рендеринге PDF:', error);
+        alert('Произошла ошибка при создании PDF. Пожалуйста, попробуйте снова.');
+        document.body.removeChild(elementCopy);
+    });
 }
 
 function saveData() {
