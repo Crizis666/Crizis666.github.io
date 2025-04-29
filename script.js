@@ -114,8 +114,16 @@ function downloadPDF() {
                 heightLeft -= pageHeight;
             }
 
-            // Сохраняем PDF
-            pdf.save('resume.pdf');
+            // Сохраняем PDF как Blob и инициируем скачивание
+            const pdfBlob = pdf.output('blob');
+            const url = URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'resume.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
 
             // Удаляем временную копию элемента
             document.body.removeChild(elementCopy);
