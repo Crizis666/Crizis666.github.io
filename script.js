@@ -64,35 +64,32 @@ function downloadPDF() {
     const buttons = elementCopy.querySelectorAll('.actions');
     buttons.forEach(btn => btn.style.display = 'none');
 
-    // Применяем стили для PDF
-    function setStylesRecursively(node) {
-        if (node.nodeType === 1) {
-            node.style.color = '#000';
-            node.style.backgroundColor = 'transparent';
-            if (node.classList.contains('resume-header')) {
-                node.style.backgroundColor = '#fff';
-            }
-            if (node.classList.contains('section-title')) {
-                node.style.borderBottom = '2px solid #000';
-            }
-        }
-        node.childNodes.forEach(child => setStylesRecursively(child));
-    }
-
-    setStylesRecursively(elementCopy);
-
-    // Скрываем копию элемента, чтобы она не отображалась на странице
+    // Скрываем копию элемента, чтобы она не отображалась на странице, но была доступна для рендеринга
     elementCopy.style.position = 'absolute';
     elementCopy.style.left = '-9999px';
-    elementCopy.style.visibility = 'hidden';
+    elementCopy.style.width = element.offsetWidth + 'px';
+    elementCopy.style.height = element.offsetHeight + 'px';
 
     // Добавляем копию в DOM для рендеринга
     document.body.appendChild(elementCopy);
 
     // Рендерим содержимое как изображение с помощью html2canvas
-    html2canvas(elementCopy, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(canvas => {
-        // Убедимся, что canvas не добавляется в DOM
+    html2canvas(elementCopy, { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: '#fff',
+        onclone: (doc) => {
+            // Принудительно применяем шрифты и стили
+            doc.querySelectorAll('*').forEach(el => {
+                el.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+                el.style.visibility = 'visible';
+            });
+        }
+    }).then(canvas => {
+        // Отладка: проверяем, что imgData содержит данные
         const imgData = canvas.toDataURL('image/jpeg', 0.98);
+        console.log('imgData после html2canvas:', imgData.substring(0, 50)); // Первые 50 символов для отладки
+
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF({
             orientation: 'portrait',
