@@ -203,6 +203,9 @@
     </div>
 
     <script>
+        // Флаг для управления эффектом Material Wave
+        let enableRippleEffect = true;
+
         // Задержка перед отображением списка навыков
         window.addEventListener('load', () => {
             setTimeout(() => {
@@ -246,6 +249,8 @@
         // Эффект Material Wave
         document.querySelectorAll('.editable, .download-btn').forEach(element => {
             element.addEventListener('click', (e) => {
+                if (!enableRippleEffect) return; // Пропускаем, если эффект отключен
+
                 const ripple = document.createElement('span');
                 ripple.classList.add('ripple');
                 element.appendChild(ripple);
@@ -265,6 +270,12 @@
         // Скачивание PDF с предварительным созданием изображения
         document.getElementById('download-pdf').addEventListener('click', () => {
             const element = document.getElementById('resume');
+
+            // Отключаем эффект Material Wave
+            enableRippleEffect = false;
+
+            // Удаляем существующие элементы ripple, если они есть
+            document.querySelectorAll('.ripple').forEach(ripple => ripple.remove());
 
             // Загружаем html2canvas
             const html2canvasScript = document.createElement('script');
@@ -296,6 +307,9 @@
                         // Добавляем изображение в PDF
                         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
                         pdf.save('резюме.pdf');
+
+                        // Включаем эффект Material Wave обратно
+                        enableRippleEffect = true;
                     };
                 });
             };
