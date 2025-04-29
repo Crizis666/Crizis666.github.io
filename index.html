@@ -23,37 +23,37 @@
             background: white;
             max-width: 800px;
             width: 100%;
-            padding: 40px;
+            padding: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 8px;
             position: relative;
         }
 
         .header {
+            background-color: #4682b4;
+            color: white;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
             font-size: 2.5em;
-            color: #333;
         }
 
         .header p {
-            color: #666;
             font-size: 1.1em;
         }
 
         .section {
             margin-bottom: 20px;
+            padding: 0 20px;
         }
 
         .section h2 {
             font-size: 1.8em;
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 5px;
-            margin-bottom: 15px;
+            color: #4682b4;
+            margin-bottom: 10px;
         }
 
         .editable {
@@ -71,7 +71,7 @@
         }
 
         .editable[contenteditable="true"] {
-            border-color: #3498db;
+            border-color: #4682b4;
             background-color: #e6f3fa;
         }
 
@@ -86,10 +86,10 @@
         }
 
         .download-btn {
-            display: block;
-            margin: 20px auto;
+            display: inline-block;
+            margin: 10px;
             padding: 10px 20px;
-            background-color: #3498db;
+            background-color: #4682b4;
             color: white;
             border: none;
             border-radius: 4px;
@@ -101,7 +101,7 @@
         }
 
         .download-btn:hover {
-            background-color: #2980b9;
+            background-color: #3a6b9a;
         }
 
         .ripple {
@@ -120,13 +120,22 @@
             }
         }
 
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
         @media (max-width: 600px) {
             .resume-container {
-                padding: 20px;
+                padding: 10px;
             }
 
             .header h1 {
                 font-size: 1.8em;
+            }
+
+            .header p {
+                font-size: 0.9em;
             }
 
             .section h2 {
@@ -136,32 +145,42 @@
             .editable {
                 font-size: 0.9em;
             }
+
+            .download-btn {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="resume-container" id="resume">
         <div class="header">
-            <h1 class="editable" data-key="name">Иван Иванов</h1>
-            <p class="editable" data-key="contact">ivan.ivanov@example.com | +7 (123) 456-78-90</p>
-        </div>
-        <div class="section">
-            <h2>О себе</h2>
-            <p class="editable" data-key="summary">Опытный разработчик программного обеспечения, увлеченный созданием эффективных и масштабируемых решений.</p>
+            <h1 class="editable" data-key="name">Жариков Илья</h1>
+            <p class="editable" data-key="contact">Email: iliazh06@gmail.com Телефон: +7 (913) 944-7914 Город: Новосибирск</p>
         </div>
         <div class="section">
             <h2>Опыт работы</h2>
-            <p class="editable" data-key="experience">Инженер-программист в ООО "ТехКорп", 2020-настоящее время: разработка веб-приложений с использованием современных технологий.</p>
+            <p class="editable" data-key="experience1"><strong>Frontend разработчик</strong><br>Январь 2020 - Настоящее время<br>Разработка пользовательских интерфейсов с использованием HTML, CSS, JavaScript. Оптимизация производительности веб-приложений.</p>
+            <p class="editable" data-key="experience2"><strong>Веб-дизайнер</strong><br>Март 2018 - Декабрь 2019<br>Создание макетов и прототипов для веб-сайтов.</p>
         </div>
         <div class="section">
             <h2>Образование</h2>
-            <p class="editable" data-key="education">Бакалавр компьютерных наук, Университет Пример, 2016-2020</p>
+            <p class="editable" data-key="education">Сибирский государственный университет телекоммуникаций и информатики<br>2014 - 2018<br>Направление: Программное обеспечение систем мобильной связи</p>
         </div>
         <div class="section">
             <h2>Навыки</h2>
-            <p class="editable" data-key="skills">JavaScript, HTML, CSS, Python, Решение проблем</p>
+            <ul>
+                <li class="editable" data-key="skill1">HTML5, CSS3, JavaScript</li>
+                <li class="editable" data-key="skill2">Адаптивный дизайн</li>
+                <li class="editable" data-key="skill3">Работа с Git</li>
+                <li class="editable" data-key="skill4">Основы UI/UX</li>
+            </ul>
         </div>
-        <button class="download-btn">Скачать PDF</button>
+        <div class="buttons">
+            <button class="download-btn">Скачать PDF</button>
+            <button class="download-btn">Сохранить изменения</button>
+        </div>
     </div>
 
     <script>
@@ -172,7 +191,7 @@
             const key = element.dataset.key;
             const savedContent = localStorage.getItem(key);
             if (savedContent) {
-                element.textContent = savedContent;
+                element.innerHTML = savedContent;
             }
 
             element.addEventListener('click', () => {
@@ -183,7 +202,7 @@
             element.addEventListener('blur', () => {
                 element.setAttribute('contenteditable', 'false');
                 element.classList.add('animation-update');
-                localStorage.setItem(key, element.textContent);
+                localStorage.setItem(key, element.innerHTML);
                 setTimeout(() => {
                     element.classList.remove('animation-update');
                 }, 300);
@@ -217,7 +236,7 @@
         });
 
         // Скачивание PDF
-        document.querySelector('.download-btn').addEventListener('click', () => {
+        document.querySelectorAll('.download-btn')[0].addEventListener('click', () => {
             const element = document.getElementById('resume');
             const opt = {
                 margin: 0.5,
@@ -227,13 +246,17 @@
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Динамическая загрузка html2pdf.js
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
             script.onload = () => {
                 html2pdf().set(opt).from(element).save();
             };
             document.head.appendChild(script);
+        });
+
+        // Сохранение изменений (просто уведомление, так как данные уже сохраняются в localStorage)
+        document.querySelectorAll('.download-btn')[1].addEventListener('click', () => {
+            alert('Изменения сохранены!');
         });
     </script>
 </body>
