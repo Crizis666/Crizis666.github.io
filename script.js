@@ -49,101 +49,72 @@ function addClickAnimation(event) {
 }
 
 function downloadPDF() {
-    const element = document.querySelector('.resume-container');
-    const opt = {
-        margin: 10,
-        filename: 'resume.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    const imageUpload = document.getElementById('imageUpload');
+    
+    // Проверяем, выбрано ли изображение
+    if (!imageUpload.files || imageUpload.files.length === 0) {
+        alert('Пожалуйста, выберите изображение резюме перед скачиванием PDF.');
+        return;
+    }
 
-    // Создаем копию элемента для PDF
-    const elementCopy = element.cloneNode(true);
+    const file = imageUpload.files[0];
+    const reader = new FileReader();
 
-    // Скрываем кнопки
-    const buttons = elementCopy.querySelectorAll('.actions');
-    buttons.forEach(btn => btn.style.display = 'none');
+    reader.onload = function(e) {
+        const imgData = e.target.result;
+        const img = new Image();
+        img.src = imgData;
 
-    // Скрываем копию элемента, чтобы она не отображалась на странице, но была доступна для рендеринга
-    elementCopy.style.position = 'absolute';
-    elementCopy.style.left = '-9999px';
-    elementCopy.style.width = element.offsetWidth + 'px';
-    elementCopy.style.height = element.offsetHeight + 'px';
-
-    // Добавляем копию в DOM для рендеринга
-    document.body.appendChild(elementCopy);
-
-    // Рендерим содержимое как изображение с помощью html2canvas
-    html2canvas(elementCopy, { 
-        scale: 2, 
-        useCORS: true, 
-        backgroundColor: '#fff',
-        onclone: (doc) => {
-            // Принудительно применяем шрифты и стили
-            doc.querySelectorAll('*').forEach(el => {
-                el.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-                el.style.visibility = 'visible';
+        img.onload = function() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
             });
-        }
-    }).then(canvas => {
-        // Отладка: проверяем, что imgData содержит данные
-        const imgData = canvas.toDataURL('image/jpeg', 0.98);
-        console.log('imgData после html2canvas:', imgData.substring(0, 50)); // Первые 50 символов для отладки
 
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
+            const imgWidth = 190; // Ширина изображения в PDF
+            const pageHeight = 297; // Высота страницы A4
+            const margin = 10;
+            const imgHeight = (img.height * imgWidth) / img.width;
+            let heightLeft = imgHeight;
+            let position = 0;
 
-        const imgWidth = 190; // Ширина изображения в PDF
-        const pageHeight = 297; // Высота страницы A4
-        const margin = 10;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        // Добавляем изображение на первую страницу
-        pdf.addImage(imgData, 'JPEG', margin, position + margin, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        // Добавляем дополнительные страницы, если изображение слишком длинное
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
+            // Добавляем изображение на первую страницу
             pdf.addImage(imgData, 'JPEG', margin, position + margin, imgWidth, imgHeight);
             heightLeft -= pageHeight;
-        }
 
-        // Сохраняем PDF как Blob и инициируем скачивание
-        const pdfBlob = pdf.output('blob');
-        const url = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'resume.pdf';
-        link.style.display = 'none'; // Убедимся, что ссылка не видима
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        // Удаляем временную копию элемента
-        document.body.removeChild(elementCopy);
-
-        // Проверяем, нет ли элементов, которые могут отображать PDF или изображение
-        const existingPreviews = document.querySelectorAll('iframe, embed, object, img:not([src*="cdn-cgi"])');
-        existingPreviews.forEach(preview => {
-            if (preview.src && (preview.src.includes('resume.pdf') || preview.src.includes('data:image'))) {
-                console.log('Удаляем нежелательный элемент:', preview);
-                preview.remove();
+            // Добавляем дополнительные страницы, если изображение слишком длинное
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', margin, position + margin, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
             }
-        });
-    }).catch(error => {
-        console.error('Ошибка при рендеринге PDF:', error);
-        alert('Произошла ошибка при создании PDF. Пожалуйста, попробуйте снова.');
-        document.body.removeChild(elementCopy);
-    });
+
+            // Сохраняем PDF как Blob и инициируем скачивание
+            const pdfBlob = pdf.output('blob');
+            const url = URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'resume.pdf';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        };
+
+        img.onerror = function() {
+            alert('Не удалось загрузить изображение. Пожалуйста, выберите другой файл.');
+        };
+    };
+
+    reader.onerror = function() {
+        alert('Ошибка при чтении файла. Пожалуйста, попробуйте снова.');
+    };
+
+    reader.readAsDataURL(file);
 }
 
 function saveData() {
