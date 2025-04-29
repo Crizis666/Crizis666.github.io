@@ -54,15 +54,17 @@ function downloadPDF() {
         margin: 10,
         filename: 'resume.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true, backgroundColor: '#fff', logging: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
+    // Создаем копию элемента для PDF
     const elementCopy = element.cloneNode(true);
 
+    // Скрываем кнопки
     const buttons = elementCopy.querySelectorAll('.actions');
     buttons.forEach(btn => btn.style.display = 'none');
 
+    // Рекурсивно задаем черный цвет текста и белый фон для всех элементов
     function setStylesRecursively(node) {
         if (node.nodeType === 1) {
             node.style.color = '#000';
@@ -82,10 +84,34 @@ function downloadPDF() {
     document.body.appendChild(elementCopy);
 
     setTimeout(() => {
-        html2pdf().from(elementCopy).set(opt).save();
-        setTimeout(() => {
+        html2canvas(elementCopy, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            const pdf = new jspdf.jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const imgWidth = 190;
+            const pageHeight = 297;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+
+            let position = 0;
+
+            pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save('resume.pdf');
             document.body.removeChild(elementCopy);
-        }, 100);
+        });
     }, 200);
 }
 
