@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resume</title>
+    <title>Резюме</title>
     <style>
         * {
             margin: 0;
@@ -142,33 +142,33 @@
 <body>
     <div class="resume-container" id="resume">
         <div class="header">
-            <h1 class="editable" data-key="name">John Doe</h1>
-            <p class="editable" data-key="contact">john.doe@example.com | (123) 456-7890</p>
+            <h1 class="editable" data-key="name">Иван Иванов</h1>
+            <p class="editable" data-key="contact">ivan.ivanov@example.com | +7 (123) 456-78-90</p>
         </div>
         <div class="section">
-            <h2>Professional Summary</h2>
-            <p class="editable" data-key="summary">Experienced software developer with a passion for creating efficient and scalable solutions.</p>
+            <h2>О себе</h2>
+            <p class="editable" data-key="summary">Опытный разработчик программного обеспечения, увлеченный созданием эффективных и масштабируемых решений.</p>
         </div>
         <div class="section">
-            <h2>Work Experience</h2>
-            <p class="editable" data-key="experience">Software Engineer at Tech Corp, 2020-Present: Developed web applications using modern technologies.</p>
+            <h2>Опыт работы</h2>
+            <p class="editable" data-key="experience">Инженер-программист в ООО "ТехКорп", 2020-настоящее время: разработка веб-приложений с использованием современных технологий.</p>
         </div>
         <div class="section">
-            <h2>Education</h2>
-            <p class="editable" data-key="education">B.S. in Computer Science, University of Example, 2016-2020</p>
+            <h2>Образование</h2>
+            <p class="editable" data-key="education">Бакалавр компьютерных наук, Университет Пример, 2016-2020</p>
         </div>
         <div class="section">
-            <h2>Skills</h2>
-            <p class="editable" data-key="skills">JavaScript, HTML, CSS, Python, Problem Solving</p>
+            <h2>Навыки</h2>
+            <p class="editable" data-key="skills">JavaScript, HTML, CSS, Python, Решение проблем</p>
         </div>
-        <button class="download-btn">Download PDF</button>
+        <button class="download-btn">Скачать PDF</button>
     </div>
 
     <script>
-        // Editable content handling
+        // Обработка редактируемых элементов
         const editables = document.querySelectorAll('.editable');
         editables.forEach(element => {
-            // Load saved content from localStorage
+            // Загрузка сохраненного контента из localStorage
             const key = element.dataset.key;
             const savedContent = localStorage.getItem(key);
             if (savedContent) {
@@ -197,7 +197,7 @@
             });
         });
 
-        // Material Wave effect
+        // Эффект Material Wave
         document.querySelectorAll('.editable, .download-btn').forEach(element => {
             element.addEventListener('click', (e) => {
                 const ripple = document.createElement('span');
@@ -216,18 +216,18 @@
             });
         });
 
-        // PDF Download
+        // Скачивание PDF
         document.querySelector('.download-btn').addEventListener('click', () => {
             const element = document.getElementById('resume');
             const opt = {
                 margin: 0.5,
-                filename: 'resume.pdf',
+                filename: 'резюме.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Dynamically load html2pdf.js
+            // Динамическая загрузка html2pdf.js
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
             script.onload = () => {
