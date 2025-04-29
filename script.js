@@ -54,15 +54,39 @@ function downloadPDF() {
         margin: 10,
         filename: 'resume.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#fff' },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     const elementCopy = element.cloneNode(true);
+
     elementCopy.classList.add('pdf-rendering');
 
     const buttons = elementCopy.querySelectorAll('.actions');
     buttons.forEach(btn => btn.style.display = 'none');
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .resume-container * {
+            color: #000 !important; /* Черный цвет для всего текста */
+        }
+        .resume-header {
+            background-color: #fff !important; /* Белый фон для заголовка */
+            color: #000 !important; /* Черный текст в заголовке */
+        }
+        .section-title {
+            color: #000 !important;
+            border-bottom: 2px solid #000 !important;
+        }
+        .job-item, .education-item, .skills-content, .contact-info p,
+        .job-description, .education-description, .skills-content li {
+            color: #000 !important;
+        }
+        .skills-content li::before {
+            color: #000 !important;
+        }
+    `;
+    elementCopy.appendChild(style);
 
     document.body.appendChild(elementCopy);
 

@@ -315,3 +315,7 @@ body {
 .pdf-rendering .skills-content li::before {
   color: #000 !important;
 }
+
+.resume-container.pdf-rendering * {
+  color: #000 !important;
+}
