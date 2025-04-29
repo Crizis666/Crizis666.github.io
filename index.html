@@ -133,17 +133,6 @@
             margin-top: 20px;
         }
 
-        /* Скрываем список навыков изначально */
-        .skills-list {
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        /* Класс для отображения списка с анимацией */
-        .skills-list.visible {
-            opacity: 1;
-        }
-
         @media (max-width: 600px) {
             .resume-container {
                 padding: 10px;
@@ -189,7 +178,7 @@
         </div>
         <div class="section">
             <h2>Навыки</h2>
-            <ul class="skills-list" id="skills-list">
+            <ul>
                 <li class="editable" data-key="skill1">HTML5, CSS3, JavaScript</li>
                 <li class="editable" data-key="skill2">Адаптивный дизайн</li>
                 <li class="editable" data-key="skill3">Работа с Git</li>
@@ -203,21 +192,8 @@
     </div>
 
     <script>
-        // Флаг для управления эффектом Material Wave
-        let enableRippleEffect = true;
-
-        // Задержка перед отображением списка навыков
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const skillsList = document.getElementById('skills-list');
-                skillsList.classList.add('visible');
-            }, 2000); // Задержка 2 секунды
-        });
-
-        // Обработка редактируемых элементов
         const editables = document.querySelectorAll('.editable');
         editables.forEach(element => {
-            // Загрузка сохраненного контента из localStorage
             const key = element.dataset.key;
             const savedContent = localStorage.getItem(key);
             if (savedContent) {
@@ -249,8 +225,6 @@
         // Эффект Material Wave
         document.querySelectorAll('.editable, .download-btn').forEach(element => {
             element.addEventListener('click', (e) => {
-                if (!enableRippleEffect) return; // Пропускаем, если эффект отключен
-
                 const ripple = document.createElement('span');
                 ripple.classList.add('ripple');
                 element.appendChild(ripple);
@@ -270,12 +244,6 @@
         // Скачивание PDF с предварительным созданием изображения
         document.getElementById('download-pdf').addEventListener('click', () => {
             const element = document.getElementById('resume');
-
-            // Отключаем эффект Material Wave
-            enableRippleEffect = false;
-
-            // Удаляем существующие элементы ripple, если они есть
-            document.querySelectorAll('.ripple').forEach(ripple => ripple.remove());
 
             // Загружаем html2canvas
             const html2canvasScript = document.createElement('script');
@@ -307,9 +275,6 @@
                         // Добавляем изображение в PDF
                         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
                         pdf.save('резюме.pdf');
-
-                        // Включаем эффект Material Wave обратно
-                        enableRippleEffect = true;
                     };
                 });
             };
