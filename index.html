@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .resume-container {
+            background: white;
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #333;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            font-size: 1.8em;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .editable {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .editable:hover {
+            background-color: #f9f9f9;
+        }
+
+        .editable[contenteditable="true"] {
+            border-color: #3498db;
+            background-color: #e6f3fa;
+        }
+
+        .animation-update {
+            animation: updateText 0.3s ease;
+        }
+
+        @keyframes updateText {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .download-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .resume-container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .section h2 {
+                font-size: 1.4em;
+            }
+
+            .editable {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container" id="resume">
+        <div class="header">
+            <h1 class="editable" data-key="name">John Doe</h1>
+            <p class="editable" data-key="contact">john.doe@example.com | (123) 456-7890</p>
+        </div>
+        <div class="section">
+            <h2>Professional Summary</h2>
+            <p class="editable" data-key="summary">Experienced software developer with a passion for creating efficient and scalable solutions.</p>
+        </div>
+        <div class="section">
+            <h2>Work Experience</h2>
+            <p class="editable" data-key="experience">Software Engineer at Tech Corp, 2020-Present: Developed web applications using modern technologies.</p>
+        </div>
+        <div class="section">
+            <h2>Education</h2>
+            <p class="editable" data-key="education">B.S. in Computer Science, University of Example, 2016-2020</p>
+        </div>
+        <div class="section">
+            <h2>Skills</h2>
+            <p class="editable" data-key="skills">JavaScript, HTML, CSS, Python, Problem Solving</p>
+        </div>
+        <button class="download-btn">Download PDF</button>
+    </div>
+
+    <script>
+        // Editable content handling
+        const editables = document.querySelectorAll('.editable');
+        editables.forEach(element => {
+            // Load saved content from localStorage
+            const key = element.dataset.key;
+            const savedContent = localStorage.getItem(key);
+            if (savedContent) {
+                element.textContent = savedContent;
+            }
+
+            element.addEventListener('click', () => {
+                element.setAttribute('contenteditable', 'true');
+                element.focus();
+            });
+
+            element.addEventListener('blur', () => {
+                element.setAttribute('contenteditable', 'false');
+                element.classList.add('animation-update');
+                localStorage.setItem(key, element.textContent);
+                setTimeout(() => {
+                    element.classList.remove('animation-update');
+                }, 300);
+            });
+
+            element.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    element.blur();
+                }
+            });
+        });
+
+        // Material Wave effect
+        document.querySelectorAll('.editable, .download-btn').forEach(element => {
+            element.addEventListener('click', (e) => {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                element.appendChild(ripple);
+
+                const rect = element.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = `${size}px`;
+                ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+                ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // PDF Download
+        document.querySelector('.download-btn').addEventListener('click', () => {
+            const element = document.getElementById('resume');
+            const opt = {
+                margin: 0.5,
+                filename: 'resume.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Dynamically load html2pdf.js
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+            script.onload = () => {
+                html2pdf().set(opt).from(element).save();
+            };
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>
