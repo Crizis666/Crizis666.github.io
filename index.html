@@ -133,6 +133,17 @@
             margin-top: 20px;
         }
 
+        /* Скрываем список навыков изначально */
+        .skills-list {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Класс для отображения списка с анимацией */
+        .skills-list.visible {
+            opacity: 1;
+        }
+
         @media (max-width: 600px) {
             .resume-container {
                 padding: 10px;
@@ -178,7 +189,7 @@
         </div>
         <div class="section">
             <h2>Навыки</h2>
-            <ul>
+            <ul class="skills-list" id="skills-list">
                 <li class="editable" data-key="skill1">HTML5, CSS3, JavaScript</li>
                 <li class="editable" data-key="skill2">Адаптивный дизайн</li>
                 <li class="editable" data-key="skill3">Работа с Git</li>
@@ -192,6 +203,14 @@
     </div>
 
     <script>
+        // Задержка перед отображением списка навыков
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const skillsList = document.getElementById('skills-list');
+                skillsList.classList.add('visible');
+            }, 2000); // Задержка 2 секунды
+        });
+
         // Обработка редактируемых элементов
         const editables = document.querySelectorAll('.editable');
         editables.forEach(element => {
