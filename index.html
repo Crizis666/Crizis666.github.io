@@ -159,6 +159,14 @@
                 font-size: 0.9em;
             }
         }
+
+            .generating-pdf .ripple {
+                display: none !important;
+        }
+
+            .generating-pdf .editable {
+                animation: none !important;
+        }
     </style>
 </head>
 <body>
@@ -192,98 +200,72 @@
     </div>
 
     <script>
-        const editables = document.querySelectorAll('.editable');
-        editables.forEach(element => {
-            const key = element.dataset.key;
-            const savedContent = localStorage.getItem(key);
-            if (savedContent) {
-                element.innerHTML = savedContent;
+// Скачивание PDF с предварительным созданием изображения
+document.getElementById('download-pdf').addEventListener('click', function(e) {
+    // Удаляем все ripple-эффекты перед созданием скриншота
+    document.querySelectorAll('.ripple').forEach(ripple => {
+        ripple.remove();
+    });
+    
+    // Добавляем класс, который временно отключает анимации
+    document.body.classList.add('generating-pdf');
+    
+    const element = document.getElementById('resume');
+    
+    // Проверяем, загружены ли библиотеки
+    if (typeof html2canvas === 'undefined') {
+        const html2canvasScript = document.createElement('script');
+        html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        document.head.appendChild(html2canvasScript);
+        
+        html2canvasScript.onload = generatePDF;
+    } else {
+        generatePDF();
+    }
+    
+    function generatePDF() {
+        // Создаем изображение из HTML
+        html2canvas(element, { 
+            scale: 2,
+            logging: false,
+            useCORS: true,
+            allowTaint: true
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.98);
+            
+            if (typeof jsPDF === 'undefined') {
+                const jsPDFScript = document.createElement('script');
+                jsPDFScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+                document.head.appendChild(jsPDFScript);
+                
+                jsPDFScript.onload = function() {
+                    createPDF(imgData);
+                };
+            } else {
+                createPDF(imgData);
             }
-
-            element.addEventListener('click', () => {
-                element.setAttribute('contenteditable', 'true');
-                element.focus();
-            });
-
-            element.addEventListener('blur', () => {
-                element.setAttribute('contenteditable', 'false');
-                element.classList.add('animation-update');
-                localStorage.setItem(key, element.innerHTML);
-                setTimeout(() => {
-                    element.classList.remove('animation-update');
-                }, 300);
-            });
-
-            element.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    element.blur();
-                }
-            });
+        }).finally(() => {
+            // Восстанавливаем анимации после генерации
+            document.body.classList.remove('generating-pdf');
+        });
+    }
+    
+    function createPDF(imgData) {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
         });
 
-        // Эффект Material Wave
-        document.querySelectorAll('.editable, .download-btn').forEach(element => {
-            element.addEventListener('click', (e) => {
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple');
-                element.appendChild(ripple);
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-                const rect = element.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                ripple.style.width = ripple.style.height = `${size}px`;
-                ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
-                ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
-
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
-            });
-        });
-
-        // Скачивание PDF с предварительным созданием изображения
-        document.getElementById('download-pdf').addEventListener('click', () => {
-            const element = document.getElementById('resume');
-
-            // Загружаем html2canvas
-            const html2canvasScript = document.createElement('script');
-            html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-            document.head.appendChild(html2canvasScript);
-
-            html2canvasScript.onload = () => {
-                // Создаем изображение из HTML
-                html2canvas(element, { scale: 2 }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-                    // Загружаем jsPDF
-                    const jsPDFScript = document.createElement('script');
-                    jsPDFScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                    document.head.appendChild(jsPDFScript);
-
-                    jsPDFScript.onload = () => {
-                        const { jsPDF } = window.jspdf;
-                        const pdf = new jsPDF({
-                            orientation: 'portrait',
-                            unit: 'mm',
-                            format: 'a4'
-                        });
-
-                        const imgProps = pdf.getImageProperties(imgData);
-                        const pdfWidth = pdf.internal.pageSize.getWidth();
-                        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-                        // Добавляем изображение в PDF
-                        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-                        pdf.save('резюме.pdf');
-                    };
-                });
-            };
-        });
-
-        // Сохранение изменений (уведомление)
-        document.querySelectorAll('.download-btn')[1].addEventListener('click', () => {
-            alert('Изменения сохранены!');
-        });
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('резюме.pdf');
+    }
+});
     </script>
 </body>
 </html>
