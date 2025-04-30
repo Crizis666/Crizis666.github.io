@@ -70,13 +70,11 @@
             background-color: #f9f9f9;
         }
 
-        /* Стиль для редактируемых элементов вне header */
         .editable[contenteditable="true"] {
             border-color: #4682b4;
             background-color: #e6f3fa;
         }
 
-        /* Стиль для редактируемых элементов в header */
         .header .editable[contenteditable="true"] {
             border-color: #4682b4;
             background-color: #fff;
@@ -133,6 +131,41 @@
             margin-top: 20px;
         }
 
+        /* Стили для лоадера */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+
+        .loader.active {
+            display: flex;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4682b4;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 600px) {
             .resume-container {
                 padding: 10px;
@@ -158,14 +191,6 @@
                 padding: 8px 15px;
                 font-size: 0.9em;
             }
-        }
-
-            .generating-pdf .ripple {
-                display: none !important;
-        }
-
-            .generating-pdf .editable {
-                animation: none !important;
         }
     </style>
 </head>
@@ -195,77 +220,155 @@
         </div>
         <div class="buttons">
             <button class="download-btn" id="download-pdf">Скачать PDF</button>
-            <button class="download-btn">Сохранить изменения</button>
+            <button class="download-btn" id="save-changes">Сохранить изменения</button>
         </div>
     </div>
 
+    <!-- Лоадер для генерации PDF -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p>Генерация PDF...</p>
+    </div>
+
     <script>
-// Скачивание PDF с предварительным созданием изображения
-document.getElementById('download-pdf').addEventListener('click', function(e) {
-    // Удаляем все ripple-эффекты перед созданием скриншота
-    document.querySelectorAll('.ripple').forEach(ripple => {
-        ripple.remove();
-    });
-    
-    // Добавляем класс, который временно отключает анимации
-    document.body.classList.add('generating-pdf');
-    
-    const element = document.getElementById('resume');
-    
-    // Проверяем, загружены ли библиотеки
-    if (typeof html2canvas === 'undefined') {
-        const html2canvasScript = document.createElement('script');
-        html2canvasScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-        document.head.appendChild(html2canvasScript);
-        
-        html2canvasScript.onload = generatePDF;
-    } else {
-        generatePDF();
-    }
-    
-    function generatePDF() {
-        // Создаем изображение из HTML
-        html2canvas(element, { 
-            scale: 2,
-            logging: false,
-            useCORS: true,
-            allowTaint: true
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/jpeg', 0.98);
-            
-            if (typeof jsPDF === 'undefined') {
-                const jsPDFScript = document.createElement('script');
-                jsPDFScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                document.head.appendChild(jsPDFScript);
+        // Функция для работы с редактируемыми элементами
+        function setupEditableElements() {
+            const editables = document.querySelectorAll('.editable');
+            editables.forEach(element => {
+                const key = element.dataset.key;
+                const savedContent = localStorage.getItem(key);
+                if (savedContent) {
+                    element.innerHTML = savedContent;
+                }
+
+                element.addEventListener('click', () => {
+                    element.setAttribute('contenteditable', 'true');
+                    element.focus();
+                });
+
+                element.addEventListener('blur', () => {
+                    element.setAttribute('contenteditable', 'false');
+                    element.classList.add('animation-update');
+                    localStorage.setItem(key, element.innerHTML);
+                    setTimeout(() => {
+                        element.classList.remove('animation-update');
+                    }, 300);
+                });
+
+                element.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        element.blur();
+                    }
+                });
+            });
+        }
+
+        // Функция для ripple-эффекта
+        function setupRippleEffect() {
+            document.querySelectorAll('.editable, .download-btn').forEach(element => {
+                element.addEventListener('click', function(e) {
+                    // Не создаем ripple-эффект для кнопки скачивания PDF
+                    if (this.id === 'download-pdf') return;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple');
+                    this.appendChild(ripple);
+
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    ripple.style.width = ripple.style.height = `${size}px`;
+                    ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+                    ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        }
+
+        // Функция для генерации PDF
+        function setupPDFGeneration() {
+            const downloadBtn = document.getElementById('download-pdf');
+            const loader = document.getElementById('loader');
+
+            downloadBtn.addEventListener('click', async function() {
+                // Показываем лоадер
+                loader.classList.add('active');
                 
-                jsPDFScript.onload = function() {
-                    createPDF(imgData);
-                };
-            } else {
-                createPDF(imgData);
-            }
-        }).finally(() => {
-            // Восстанавливаем анимации после генерации
-            document.body.classList.remove('generating-pdf');
-        });
-    }
-    
-    function createPDF(imgData) {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-        });
+                try {
+                    // Удаляем все существующие ripple-эффекты
+                    document.querySelectorAll('.ripple').forEach(ripple => {
+                        ripple.remove();
+                    });
 
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                    // Загружаем необходимые библиотеки
+                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
 
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save('резюме.pdf');
-    }
-});
+                    // Создаем PDF
+                    const element = document.getElementById('resume');
+                    const canvas = await html2canvas(element, { 
+                        scale: 2,
+                        logging: false,
+                        useCORS: true
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+
+                    const imgProps = pdf.getImageProperties(imgData);
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                    pdf.save('резюме.pdf');
+                } catch (error) {
+                    console.error('Ошибка при генерации PDF:', error);
+                    alert('Произошла ошибка при генерации PDF');
+                } finally {
+                    // Скрываем лоадер
+                    loader.classList.remove('active');
+                }
+            });
+        }
+
+        // Вспомогательная функция для загрузки скриптов
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                if (document.querySelector(`script[src="${src}"]`)) {
+                    resolve();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+
+        // Функция для сохранения изменений
+        function setupSaveChanges() {
+            document.getElementById('save-changes').addEventListener('click', () => {
+                alert('Изменения сохранены в локальном хранилище!');
+            });
+        }
+
+        // Инициализация всех функций
+        document.addEventListener('DOMContentLoaded', () => {
+            setupEditableElements();
+            setupRippleEffect();
+            setupPDFGeneration();
+            setupSaveChanges();
+        });
     </script>
 </body>
 </html>
